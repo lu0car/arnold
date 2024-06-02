@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Foundation\Application;
@@ -42,6 +43,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/services', [ServiceController::class, 'store'])->name('service.store');
     Route::put('/services/{id}', [ServiceController::class, 'update'])->name('service.update');
     Route::delete('/services/{id}', [ServiceController::class, 'destroy'])->name('service.destroy');
+
+    Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
+    Route::get('/billing/create', [BillingController::class, 'create'])->name('billing.create');
+    Route::post('/billing', [BillingController::class, 'store'])->name('billing.store');
+
 });
 
 require __DIR__.'/auth.php';
