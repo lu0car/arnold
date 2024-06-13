@@ -144,7 +144,7 @@ function Billing3() {
                         </Typography>
                     </div>
                     <div className="w-full">
-                        <Link href="/billing/create">
+                        <Link href="/invoice/create">
                             <Button
                                 size="sm"
                                 variant="outlined"

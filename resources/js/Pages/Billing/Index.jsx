@@ -1,10 +1,11 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import Billing3 from '@/Components/Billing/BillingCard'
+import Billing3 from '@/Components/Invoice/InvoiceCard'
 import { Typography } from '@material-tailwind/react'
 import React from 'react'
 import { Head } from "@inertiajs/react";
 
-export default function Index({ auth, services }) {
+export default function Index({ auth, invoices }) {
+  console.log(invoices)
   return (
     <div>
       <AuthenticatedLayout
