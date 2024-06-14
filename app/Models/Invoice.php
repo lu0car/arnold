@@ -16,24 +16,9 @@ class Invoice extends Model
         'description'
     ];
 
-    // public function customer()
-    // {
-    //     return $this->belongsTo(Customer::class);
-    // }
-
-    // public function details()
-    // {
-    //     return $this->hasMany(InvoiceDetail::class);
-    // }
-
     public function customer()
     {
         return $this->belongsTo(Customer::class);
-    }
-
-    public function details()
-    {
-        return $this->hasMany(InvoiceDetail::class);
     }
 
     public function services()

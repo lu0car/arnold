@@ -17,16 +17,6 @@ class InvoiceService extends Model
         "total",
     ];
 
-    // public function details()
-    // {
-    //     return $this->hasMany(InvoiceDetail::class);
-    // }
-
-    public function details()
-    {
-        return $this->hasMany(InvoiceDetail::class);
-    }
-
     public function invoice()
     {
         return $this->belongsTo(Invoice::class);

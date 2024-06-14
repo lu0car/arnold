@@ -10,20 +10,17 @@ use App\Models\InvoiceService;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class InvoiceController extends Controller
 {
     public function index()
     {
-        // $invoices = Invoice::all();
-        // return Inertia::render('Billing/Index', ['invoices' => $invoices]);
-
         // Recuperar todos los clientes con sus facturas
         $invoices = Customer::with('invoices.services')->get();
 
         // Devolver la vista con los datos de los clientes y sus facturas
         return Inertia::render('Billing/Index', ['invoices' => $invoices]);
-        // return Inertia::render('Billing/Index');
     }
 
     public function create()
@@ -87,7 +84,15 @@ class InvoiceController extends Controller
 
         return redirect()->route('services.index')
             ->with("message", "The invoice {$invoice->id} was created successfull");
+    }
 
+    public function generatePdf($id)
+    {
+        $invoice = Invoice::with('services')->findOrFail($id);
+        $customer = $invoice->customer;
 
+        return Pdf::view('pdf.invoice', compact('invoice', 'customer'))
+            ->name('invoice.pdf')
+            ->download();
     }
 }
