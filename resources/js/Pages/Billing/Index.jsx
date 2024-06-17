@@ -21,7 +21,7 @@ export default function Index({ auth, invoices }) {
       <AuthenticatedLayout
         user={auth.user}
         header={
-          <Typography variant="h4">Billing</Typography>
+          <Typography variant="h4">Invoices</Typography>
         }
       >
         <Head title="Billing" />
@@ -64,7 +64,7 @@ export default function Index({ auth, invoices }) {
                   <InvoiceCard
                     key={invoice.id}
                     customer={customer.name}
-                    truck="Demo truck"
+                    truck={customer.trucks[0].truck}
                     services={invoice.services.map(service => ({
                       description: service.description,
                       total: service.total

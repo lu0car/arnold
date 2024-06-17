@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     Card,
     CardBody,
@@ -8,12 +8,18 @@ import {
 } from "@material-tailwind/react";
 import { TruckIcon, PencilIcon, TrashIcon, PrinterIcon } from "@heroicons/react/24/solid";
 import { PlusIcon } from "@heroicons/react/24/outline";
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
+import { toast } from "sonner";
+import DialogConfirm from "@/Pages/Billing/DialogConfirm";
 
 export default function InvoiceCard({ customer, truck, services, total, invoiceId }) {
-
-    const handlePrintPDF = () => {
-        console.log(`Invoice ID: ${invoiceId}`);
+    const [open, setOpen] = useState(false)
+    const handleDelete = () => {
+        router.delete(`/invoice/${invoiceId}`);
+        toast('Alert!', {
+            description: 'Invoice has been deleted successfully',
+        })
+        setOpen(false)
     };
 
     return (
@@ -44,7 +50,6 @@ export default function InvoiceCard({ customer, truck, services, total, invoiceI
                             variant="text"
                             color="red"
                             className="flex items-center gap-2"
-                            onClick={handlePrintPDF}
                         >
                             <PrinterIcon className="h-4 w-4 text-gray-600" />
                             <Typography className="!font-semibold text-xs text-gray-600 md:block hidden">
@@ -67,10 +72,11 @@ export default function InvoiceCard({ customer, truck, services, total, invoiceI
                         variant="text"
                         color="red"
                         className="flex items-center gap-2"
+                        onClick={() => setOpen(true)}
                     >
                         <TrashIcon className="h-4 w-4 text-red-500" />
                         <Typography className="!font-semibold text-xs text-red-500 md:block hidden">
-                            delete
+                            Delete
                         </Typography>
                     </Button>
                 </div>
@@ -101,6 +107,7 @@ export default function InvoiceCard({ customer, truck, services, total, invoiceI
                     </Typography>
                 </div>
             </div>
+            <DialogConfirm open={open} setOpen={setOpen} id={invoiceId} handleDelete={handleDelete}/>
         </Card>
     );
 }

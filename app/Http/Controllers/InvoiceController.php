@@ -8,6 +8,7 @@ use App\Models\InvoiceDetail;
 use App\Models\InvoiceItem;
 use App\Models\InvoiceService;
 use App\Models\Service;
+use App\Models\Truck;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\LaravelPdf\Facades\Pdf;
@@ -17,7 +18,7 @@ class InvoiceController extends Controller
     public function index()
     {
         // Recuperar todos los clientes con sus facturas
-        $invoices = Customer::with('invoices.services')->get();
+        $invoices = Customer::with('invoices.services', 'trucks')->get();
 
         // Devolver la vista con los datos de los clientes y sus facturas
         return Inertia::render('Billing/Index', ['invoices' => $invoices]);
@@ -39,6 +40,9 @@ class InvoiceController extends Controller
             'services.*.parts' => 'required|numeric|min:0',
             'services.*.labor' => 'required|numeric|min:0',
             'services.*.total' => 'required|numeric|min:0',
+            'truck.tagNumber' => 'required|string|max:20',
+            'truck.binNumber' => 'required|string|max:20',
+            'truck.truck' => 'required|string|max:50',
             'total.subtotal' => 'required|numeric|min:0',
             'total.taxes' => 'required|numeric|min:0',
             'total.total' => 'required|numeric|min:0',
@@ -82,9 +86,35 @@ class InvoiceController extends Controller
 
         }
 
-        return redirect()->route('services.index')
+        $truck = new Truck([
+            'truck' => $request->input('truck.truck'),
+            'tag_number' => $request->input('truck.tagNumber'),
+            'bin_number' => $request->input('truck.binNumber'),
+        ]);
+
+        $customer->trucks()->save($truck);
+
+        return redirect()->route('invoice.index')
             ->with("message", "The invoice {$invoice->id} was created successfull");
     }
+
+    public function destroy($id)
+    {
+        $invoice = Invoice::findOrFail($id);
+        $invoice->delete();
+
+        $customer = $invoice->customer;
+        $customer->delete();
+
+        $serials = $invoice->services();
+        foreach ($serials as $service) {
+            $service->delete();
+        }
+
+        return redirect()->route('invoice.index')
+            ->with('message', 'The invoice was deleted successfully');
+    }
+
 
     public function generatePdf($id)
     {
