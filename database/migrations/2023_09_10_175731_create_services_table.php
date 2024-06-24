@@ -14,7 +14,11 @@ return new class extends Migration
         Schema::create('services', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->decimal('cost', 10, 2);
+            $table->string('description')->nullable();
+            $table->decimal('parts', 10, 2);
+            $table->decimal('labor', 10, 2);
+            $table->decimal('total', 10, 2);
+            $table->string('image');
             $table->timestamps();
         });
     }

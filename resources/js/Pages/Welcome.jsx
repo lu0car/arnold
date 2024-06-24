@@ -49,7 +49,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     <div className="flex justify-center mt-16 px-6 sm:items-center sm:justify-between">
                         <div className="text-center text-sm text-gray-500 dark:text-gray-400 sm:text-left">
                             <div className="flex items-center gap-4">
-                                <a
+                                {/* <a
                                     href=""
                                     className="group inline-flex items-center hover:text-gray-700 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500"
                                 >
@@ -67,13 +67,13 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                         />
                                     </svg>
                                     Sponsor
-                                </a>
+                                </a> */}
                             </div>
                         </div>
 
-                        <div className="ml-4 text-center text-sm text-gray-500 dark:text-gray-400 sm:text-right sm:ml-0">
+                        {/* <div className="ml-4 text-center text-sm text-gray-500 dark:text-gray-400 sm:text-right sm:ml-0">
                             Laravel v{laravelVersion} (PHP v{phpVersion})
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>

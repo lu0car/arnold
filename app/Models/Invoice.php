@@ -13,7 +13,7 @@ class Invoice extends Model
         'subtotal',
         'taxes',
         'total',
-        'description'
+        'observations'
     ];
 
     public function customer()

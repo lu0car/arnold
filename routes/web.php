@@ -27,6 +27,15 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/deploy', function () {
+    // Ejecuta las migraciones
+    Artisan::call('migrate:fresh', ["--force" => true]);
+
+    // Crea el enlace simbólico del storage
+    Artisan::call('storage:link');
+    return "Deploy complete";
+});
+
 Route::inertia('services-preview', 'ServicesPreview');
 
 Route::get('/dashboard', function () {
@@ -40,6 +49,7 @@ Route::middleware('auth')->group(function () {
 
     // Route::resource('/services', ServiceController::class);
     Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
+    Route::get('/services-view', [ServiceController::class, 'services'])->name('services.view');
     Route::post('/services', [ServiceController::class, 'store'])->name('service.store');
     Route::put('/services/{id}', [ServiceController::class, 'update'])->name('service.update');
     Route::delete('/services/{id}', [ServiceController::class, 'destroy'])->name('service.destroy');
@@ -47,6 +57,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/invoice', [InvoiceController::class, 'index'])->name('invoice.index');
     Route::get('/invoice/create', [InvoiceController::class, 'create'])->name('invoice.create');
     Route::post('/invoice', [InvoiceController::class, 'store'])->name('invoice.store');
+    Route::get('/invoice/{id}', [InvoiceController::class, 'edit'])->name('invoice.edit');
+    Route::patch('/invoice/{id}', [InvoiceController::class, 'update'])->name('invoice.update');
     Route::delete('/invoice/{id}', [InvoiceController::class, 'destroy'])->name('invoice.destroy');
     
 });

@@ -11,28 +11,26 @@ import { Cog6ToothIcon, Square3Stack3DIcon, TruckIcon, UserCircleIcon, WrenchScr
 import { toast } from 'sonner';
 import TextArea from '@/Components/TextArea';
 
-export default function Create({ auth }) {
-    const { data, setData, post, processing, errors } = useForm({
-        customerName: '',
-        phoneNumber: '',
-        observations: '',
-        services: [
-            {
-                description: '',
-                parts: '',
-                labor: '',
-                total: ''
-            }
-        ],
+export default function Edit({ auth, invoice }) {
+    const { data, setData, patch, processing, errors, onSuccess, onError } = useForm({
+        customerName: invoice.customer.name,
+        phoneNumber: invoice.customer.phone_number,
+        observations: invoice.observations,
+        services: invoice.services.map(service => ({
+            description: service.description,
+            parts: service.parts,
+            labor: service.labor,
+            total: service.total
+        })),
         truck: {
-            tagNumber: '',
-            binNumber: '',
-            truck: ''
+            tagNumber: invoice.customer.trucks[0]?.tag_number || '',
+            binNumber: invoice.customer.trucks[0]?.bin_number || '',
+            truck: invoice.customer.trucks[0]?.truck || ''
         },
-        total: { // Inicializar total como un objeto vacío
-            subtotal: '',
-            taxes: '',
-            total: ''
+        total: {
+            subtotal: invoice.subtotal,
+            taxes: invoice.taxes,
+            total: invoice.total
         }
     });
 
@@ -114,7 +112,7 @@ export default function Create({ auth }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post('/invoice', {
+        patch(`/invoice/${invoice.id}`, {
             onSuccess: () => { ok(); },
             onError: () => { error(); },
         });
@@ -131,21 +129,6 @@ export default function Create({ auth }) {
             description: 'Failed to update invoice. Please check the form and try again.',
         });
     };
-
-    // const errores = (errors) => {
-    //     // Crear y mostrar un toast para cada error
-    //     Object.entries(errors).forEach(([key, value]) => {
-    //         // Formatear la clave para que sea más legible
-    //         const formattedKey = key.split('.').map(part => 
-    //             part.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())
-    //         ).join(' > ');
-    
-    //         toast.error(`Error in ${formattedKey}`, {
-    //             description: value,
-    //             duration: 4000, // 4 segundos de duración
-    //         });
-    //     });
-    // };
 
     const tabs = [
         {
@@ -314,7 +297,7 @@ export default function Create({ auth }) {
                                                                 value={service.labor}
                                                                 onChange={(e) => handleChange(e, index, 'labor')}
                                                                 className="w-full"
-                                                             />
+                                                            />
                                                             {errors[`services.${index}.labor`] && (
                                                                 <p className="text-red-500">{errors[`services.${index}.labor`]}</p>
                                                             )}
@@ -385,7 +368,7 @@ export default function Create({ auth }) {
                             type='submit'
                             onClick={handleSubmit}
                         >
-                            Create
+                            Update
                         </Button>
                     </div>
                 </div>

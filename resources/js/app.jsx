@@ -17,7 +17,7 @@ createInertiaApp({
 
         root.render(
             <div>
-                <Toaster closeButton expand={true} richColors/>
+                <Toaster closeButton expand={false} richColors/>
                 <App {...props} />
             </div>
         );

@@ -61,6 +61,7 @@ export default function InvoiceCard({ customer, truck, services, total, invoiceI
                         size="sm"
                         variant="text"
                         className="flex items-center gap-2"
+                        onClick={() => router.get(`/invoice/${invoiceId}`)}
                     >
                         <PencilIcon className="h-4 w-4 text-gray-600" />
                         <Typography className="!font-semibold text-xs text-gray-600 md:block hidden">

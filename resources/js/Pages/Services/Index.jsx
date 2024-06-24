@@ -1,18 +1,16 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import { usePage } from '@inertiajs/react'
 import { Button, Dialog, DialogHeader, DialogBody, DialogFooter } from "@material-tailwind/react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
-import { Link } from "@inertiajs/react";
-import TextInput from "@/Components/TextInput";
-import InputLabel from "@/Components/InputLabel";
-import InputError from "@/Components/InputError";
-import PrimaryButton from "@/Components/PrimaryButton";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "@inertiajs/react";
 import { Alert } from "@material-tailwind/react";
 import { Card, Typography, Tooltip, IconButton } from "@material-tailwind/react";
 import ServiceDialog from "./Dialog";
+import { PlusIcon } from "@heroicons/react/24/outline";
+import { toast } from "sonner";
+import DialogConfirm from "./DialogConfirm";
 
 export default function Dashboard({ auth, services }) {
     const { flash } = usePage().props
@@ -31,68 +29,113 @@ export default function Dashboard({ auth, services }) {
         reset,
         errors,
     } = useForm({
-        id: "",
-        name: "",
-        cost: "",
+        id: '',
+        name: '',
+        description: '',
+        parts: '',
+        labor: '',
+        total: '',
+        image: null,
     });
 
-    const handleOpen = (op, id, name, cost) => {
+    console.log("Errors", errors);  
+
+    const handleOpen = (op, id, name, description, parts, labor, total, image) => {
         setOpen(true);
         setOperation(op);
-        setData({ name: "", cost: "" });
+        setData({ 
+            name: '',
+            description: '',
+            parts: '',
+            labor: '',
+            total: '',
+            image: null,
+        });
         if (op === 1) {
             setTitle("Add new service");
         } else {
             setTitle("Edit Service");
-            setData({ id: id, name: name, cost: cost });
+            setData({
+                id: id, 
+                name: name,
+                description: description,
+                parts: parts,
+                labor: labor,
+                total: total,
+                image: image,
+            });
         }
     };
+
+    useEffect(() => {
+        // Mostrar mensajes flash solo una vez cuando cambian
+        if (flash.message) {
+            toast.success('Success', {
+                description: flash.message,
+            });
+        }
+    }, [flash.message]);
 
     const handleClose = () => {
         setOpen(false);
     };
 
     const save = (e) => {
-        e.preventDefault();
+        e.preventDefault(); 
+        console.log("Datos", data);
         if (operation === 1) {
             post(route("service.store"), {
-                onSuccess: () => { handleClose(); },
-                onError: () => {
-                    if (errors.make) {
-                        reset("name");
-                        NameInput.current.focus();
-                    }
-                    if (errors.model) {
-                        reset("cost");
-                        CostInput.current.focus();
-                    }
-                },
+                onSuccess: () => { success(); },
+                onError: () => { error(); },
+                forceFormData: true
             });
         } else {
-            put(route('service.update', data.id), {
-                onSuccess: () => { handleClose(); },
-                onError: () => {
-                    if (errors.name) {
-                        reset('name');
-                        NameInput.current.focus();
-                    }
-                    if (errors.cost) {
-                        reset('cost');
-                        CostInput.current.focus();
-                    }
-                }
+            put(route('service.update', data.id), data, {
+                onSuccess: () => { success(); },
+                onError: () => { error(); },
+                forceFormData: true
             });
         }
     };
 
-    const eliminar = (id, name) => {
-        destroy(route('service.destroy', id), { onSuccess: () => { ok('Service deleted') } })
+    const success = () => {
+        setOpen(false);
+    };
+
+    const error = () => {
+        // if (errors.name) {
+        //     reset('name');
+        //     NameInput.current.focus();
+        // }
+        // if (errors.cost) {
+        //     reset('cost');
+        //     CostInput.current.focus();
+        // }
+        toast.error('Error', {
+            description: 'Failed to create the service.'
+        });
+    };
+
+    const ok = () => {
+        setOpen1(false);
+        setServiceSelected(null);
     }
 
-    const ok = (mensaje) => {
-        reset();
-        handleClose();
-    }
+    const [open1, setOpen1] = useState(false)
+    const handleDelete = () => {
+        destroy(route('service.destroy', serviceSelected.id), { 
+            onSuccess: () => { ok(); } 
+        })
+        setOpen(false)
+    };
+
+    const [serviceSelected, setServiceSelected] = useState(null);
+
+    const handleSelect = (srv) => {
+        setOpen1(true);
+        setServiceSelected(srv);
+        console.log(serviceSelected);
+    };
 
     return (
         <AuthenticatedLayout
@@ -105,35 +148,41 @@ export default function Dashboard({ auth, services }) {
         >
             <Head title="Services" />
 
-            {flash.message && (
+            {/* {flash.message && (
                 <Alert className="mt-3">{flash.message}</Alert>
-            )}
+            )} */}
+            
+            <Button
+                size="sm"
+                variant="outlined"
+                color="gray"
+                className="flex justify-center gap-3 md:max-w-fit w-full ml-6 mt-12 mb-6"
+                onClick={() => handleOpen(1)}
+                >
+                <PlusIcon strokeWidth={3} className="h-4 w-4" />
+                Create
+            </Button>
 
             <div className="">
-                <Button
-                    onClick={() => handleOpen(1)}
-                    className="rounded-full mx-6 my-3"
-                >
-                    Create
-                </Button>
+
 
                 <Card className="mx-6 mb-10">
                     <table className="text-left">
                         <thead>
                             <tr>
-                                <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                                    <Typography
-                                        variant="small"
-                                        color="blue-gray"
-                                        className="font-normal leading-none opacity-70"
-                                    >
-                                        Name of service
-                                    </Typography>
+                                <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4 rounded-tl-xl">
+                                    Service
                                 </th>
                                 <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                                    Cost
+                                    Parts
                                 </th>
                                 <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
+                                    Labor
+                                </th>
+                                <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
+                                    Total
+                                </th>
+                                <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4 rounded-tr-xl">
                                     Action
                                 </th>
                             </tr>
@@ -150,7 +199,7 @@ export default function Dashboard({ auth, services }) {
                                             color="blue-gray"
                                             className="font-normal"
                                         >
-                                            {service.name}
+                                            {service.description}
                                         </Typography>
                                     </td>
                                     <td className="p-4">
@@ -159,24 +208,44 @@ export default function Dashboard({ auth, services }) {
                                             color="blue-gray"
                                             className="font-normal"
                                         >
-                                            {service.cost}
+                                            {service.parts}
                                         </Typography>
                                     </td>
                                     <td className="p-4">
-                                        <button onClick={() => handleOpen(2, service.id, service.name, service.cost,)}>
-                                            <Tooltip content="Edit Service">
-                                                <IconButton variant="text">
-                                                    <PencilIcon className="h-4 w-4" />
-                                                </IconButton>
-                                            </Tooltip>
-                                        </button>
-                                        <button onClick={() => eliminar(service.id)}>
-                                            <Tooltip content="Remove Service">
-                                                <IconButton variant="text">
-                                                    <TrashIcon className="h-4 w-4" />
-                                                </IconButton>
-                                            </Tooltip>
-                                        </button>
+                                        <Typography
+                                            variant="small"
+                                            color="blue-gray"
+                                            className="font-normal"
+                                        >
+                                            {service.labor}
+                                        </Typography>
+                                    </td>
+                                    <td className="p-4">
+                                        <Typography
+                                            variant="small"
+                                            color="blue-gray"
+                                            className="font-normal"
+                                        >
+                                            {service.total}
+                                        </Typography>
+                                    </td>
+                                    <td className="p-4">
+                                        {/* <Tooltip content="Edit Service">
+                                            <IconButton 
+                                                variant="text"
+                                                onClick={() => handleOpen(2, service.id, service.description, service.parts, service.labor, service.total, service.image)}
+                                            >
+                                                <PencilIcon className="h-4 w-4" />
+                                            </IconButton>
+                                        </Tooltip> */}
+                                        <Tooltip content="Remove Service">
+                                            <IconButton 
+                                                variant="text"
+                                                onClick={() => handleSelect(service)}
+                                            >
+                                                <TrashIcon className="h-4 w-4" />
+                                            </IconButton>
+                                        </Tooltip>
                                     </td>
                                 </tr>
                             ))}
@@ -188,12 +257,23 @@ export default function Dashboard({ auth, services }) {
             <ServiceDialog
                 open={open}
                 onClose={handleClose}
-                onSubmit={save}
+                save={save}
                 title={title}
-                data={{ data, setData }}
+                data={data}
+                setData={setData}
                 errors={errors}
                 processing={processing}
             />
+
+            {serviceSelected && (
+                <DialogConfirm 
+                    open={open1} 
+                    setOpen={setOpen1} 
+                    service={serviceSelected}
+                    handleDelete={handleDelete}
+                />
+            )}
+
         </AuthenticatedLayout>
     );
 }

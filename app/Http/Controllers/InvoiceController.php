@@ -34,7 +34,9 @@ class InvoiceController extends Controller
 
         // dd($request);
         $request->validate([
-            'customerName' => 'required|max:50',
+            'customerName' => 'required|max:50|unique:customers',
+            'phoneNumber' => 'string|max:15|unique:customers',
+            'observations' => 'max:255',
             'services' => 'required|array',
             'services.*.description' => 'required|string|max:255',
             'services.*.parts' => 'required|numeric|min:0',
@@ -51,7 +53,7 @@ class InvoiceController extends Controller
         $customer = new Customer(
             [
                 'name' => $request->input('customerName'),
-                'phone_number' => 123456789,
+                'phone_number' => $request->input('phoneNumber'),
                 'address' => '123 Main St'
             ]
         );
@@ -66,7 +68,7 @@ class InvoiceController extends Controller
             'subtotal' => $request->input('total.subtotal'),
             'taxes' => $request->input('total.taxes'),
             'total' => $request->input('total.total'),
-            'description' => 'Some description',
+            $request->input('observations') ?: 'No observations'
         ]);
 
         $customer->invoices()->save($invoice);
@@ -98,6 +100,79 @@ class InvoiceController extends Controller
             ->with("message", "The invoice {$invoice->id} was created successfull");
     }
 
+    public function edit($id)
+    {
+        $invoice = Invoice::with(['customer', 'services', 'customer.trucks'])->findOrFail($id);
+        return Inertia::render('Billing/Edit', ['invoice' => $invoice]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'customerName' => 'required|max:50',
+            'phoneNumber' => 'string|max:15',
+            'observations' => 'max:255',
+            'services' => 'required|array',
+            'services.*.description' => 'required|string|max:255',
+            'services.*.parts' => 'required|numeric|min:0',
+            'services.*.labor' => 'required|numeric|min:0',
+            'services.*.total' => 'required|numeric|min:0',
+            'truck.tagNumber' => 'required|string|max:20',
+            'truck.binNumber' => 'required|string|max:20',
+            'truck.truck' => 'required|string|max:50',
+            'total.subtotal' => 'required|numeric|min:0',
+            'total.taxes' => 'required|numeric|min:0',
+            'total.total' => 'required|numeric|min:0',
+        ]);
+
+        $invoice = Invoice::findOrFail($id);
+        $customer = $invoice->customer;
+
+        $customer->update([
+            'name' => $request->input('customerName'),
+            'phone_number' => $request->input('phoneNumber'),
+        ]);
+
+        $invoice->update([
+            'subtotal' => $request->input('total.subtotal'),
+            'taxes' => $request->input('total.taxes'),
+            'total' => $request->input('total.total'),
+            'observations' => $request->input('observations') ?: 'No observations',
+        ]);
+
+        // Eliminar servicios existentes y crear nuevos
+        $invoice->services()->delete();
+        foreach ($request->input('services') as $service) {
+            $invoiceService = new InvoiceService([
+                'description' => $service['description'],
+                'parts' => $service['parts'],
+                'labor' => $service['labor'],
+                'total' => $service['total'],
+            ]);
+            $invoice->services()->save($invoiceService);
+        }
+
+        // Actualizar o crear el camión
+        $truck = $customer->trucks()->first();
+        if ($truck) {
+            $truck->update([
+                'truck' => $request->input('truck.truck'),
+                'tag_number' => $request->input('truck.tagNumber'),
+                'bin_number' => $request->input('truck.binNumber'),
+            ]);
+        } else {
+            $truck = new Truck([
+                'truck' => $request->input('truck.truck'),
+                'tag_number' => $request->input('truck.tagNumber'),
+                'bin_number' => $request->input('truck.binNumber'),
+            ]);
+            $customer->trucks()->save($truck);
+        }
+
+        return redirect()->route('invoice.index')
+            ->with("message", "The invoice {$invoice->id} was updated successfully");
+    }
+
     public function destroy($id)
     {
         $invoice = Invoice::findOrFail($id);
@@ -122,7 +197,6 @@ class InvoiceController extends Controller
         $customer = $invoice->customer;
 
         return Pdf::view('pdf.invoice', compact('invoice', 'customer'))
-            ->name('invoice.pdf')
-            ->download();
+            ->name('invoice.pdf');
     }
 }
