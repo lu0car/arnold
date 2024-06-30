@@ -68,7 +68,7 @@ class InvoiceController extends Controller
             'subtotal' => $request->input('total.subtotal'),
             'taxes' => $request->input('total.taxes'),
             'total' => $request->input('total.total'),
-            $request->input('observations') ?: 'No observations'
+            'observations' => $request->input('observations') ?: 'No observations'
         ]);
 
         $customer->invoices()->save($invoice);
