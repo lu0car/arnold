@@ -9,9 +9,10 @@ use App\Models\InvoiceItem;
 use App\Models\InvoiceService;
 use App\Models\Service;
 use App\Models\Truck;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Spatie\LaravelPdf\Facades\Pdf;
+// use Spatie\LaravelPdf\Facades\Pdf;
 
 class InvoiceController extends Controller
 {
@@ -68,7 +69,7 @@ class InvoiceController extends Controller
             'subtotal' => $request->input('total.subtotal'),
             'taxes' => $request->input('total.taxes'),
             'total' => $request->input('total.total'),
-            'observations' => $request->input('observations') ?: 'No observations'
+            'observations' => $request->input('observations') ?: 'No observations.'
         ]);
 
         $customer->invoices()->save($invoice);
@@ -85,7 +86,6 @@ class InvoiceController extends Controller
             );
 
             $invoice->services()->save($invoiceService);
-
         }
 
         $truck = new Truck([
@@ -196,7 +196,9 @@ class InvoiceController extends Controller
         $invoice = Invoice::with('services')->findOrFail($id);
         $customer = $invoice->customer;
 
-        return Pdf::view('pdf.invoice', compact('invoice', 'customer'))
-            ->name('invoice.pdf');
+        // return Pdf::view('pdf.invoice', compact('invoice', 'customer'))
+        //     ->name('invoice.pdf');
+        $pdf = Pdf::loadView('pdf.invoice', compact('invoice', 'customer'));
+        return $pdf->stream();
     }
 }

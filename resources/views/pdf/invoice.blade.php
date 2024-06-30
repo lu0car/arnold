@@ -3,33 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
     <title>Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+           
+            color: #333;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+           
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header, .section, .totals, .observations, .thank-you {
+            margin-bottom: 30px;
+        }
+        .company-name {
+            color: #4285F4;
+            font-size: 36px;
+            font-weight: bold;
+        }
+        .company-details, .invoice-details, .customer-info, .vehicle-info, .totals p, .observations p, .thank-you p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .invoice-title {
+            text-align: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .section-title {
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .customer-info, .vehicle-info {
+            display: inline-block;
+            width: 48%;
+            vertical-align: top;
+        }
+        .vehicle-info {
+            text-align: right;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            text-align: left;
+        }
+        td {
+            text-align: right;
+        }
+        td:first-child {
+            text-align: left;
+        }
+        .totals {
+            text-align: right;
+        }
+        .totals p {
+            margin: 5px 0;
+        }
+        .totals .total-row {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .observations .section-title, .thank-you {
+            text-align: center;
+        }
+        .thank-you p {
+            font-style: italic;
+        }
+    </style>
 </head>
-<body class="font-sans ">
-    <div class="max-w-4xl mx-auto bg-white my-8 p-8">
-        <div class="flex justify-between items-start mb-8">
-            <div>
-                <h1 class="text-4xl font-bold text-blue-600">LEFR.LLC</h1>
-                <p class="text-gray-600">Phone: +1 (301) 204-5424</p>
-                <p class="text-gray-600">Email: allrenold91@gmail.com</p>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="float: left; width: 50%;">
+                <h1 class="company-name">LEFR.LLC</h1>
+                <p class="company-details">Phone: (123) 456-7890</p>
+                <p class="company-details">Email: info@lefr.com</p>
             </div>
-            <div class="text-right">
-                <h2 class="text-2xl font-bold mb-2">Invoice</h2>
-                <p><strong>Invoice #:</strong> {{ $invoice->id }}</p>
-                <p><strong>Date:</strong> {{ $invoice->created_at->format('M d, Y') }}</p>
+            <div style="float: right; width: 50%; text-align: right;">
+                <h2 class="invoice-title">Invoice # {{ $invoice->id }}</h2>
+                <p class="invoice-details">Date: {{ $invoice->created_at->format('M d, Y') }}</p>
             </div>
+            <div style="clear: both;"></div>
         </div>
 
-        <div class="flex justify-between mb-8">
-            <div>
-                <h3 class="font-bold mb-2">Bill To:</h3>
-                <p>{{ $customer->name }}</p>
-                <!-- <p>{{ $customer->address }}</p> -->
-                <p>Phone: {{ $customer->phone_number }}</p>
+        <div class="section">
+            <div class="customer-info">
+                <div class="section-title">Bill To:</div>
+                <p><strong>Customer:</strong> {{ $customer->name }}</p>
+                <p><strong>Phone:</strong> {{ $customer->phone_number }}</p>
             </div>
-            <div>
-                <h3 class="font-bold mb-2">Vehicle Information:</h3>
+            <div class="vehicle-info">
+                <div class="section-title">Vehicle Information:</div>
                 @if(count($customer->trucks) > 0)
                     <p><strong>Make:</strong> {{ $customer->trucks[0]->truck }}</p>
                     <p><strong>Tag Number:</strong> {{ $customer->trucks[0]->tag_number }}</p>
@@ -38,50 +118,46 @@
                     <p>No vehicle information available</p>
                 @endif
             </div>
+            <div style="clear: both;"></div>
         </div>
 
-        <h2 class="font-bold my-2">Service detail:</h2>
+        <h2 class="section-title">Service detail:</h2>
         
-        <div className="border">
-            <table class="w-full mb-8 border rounded-xl">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="py-2 px-4 text-left">Description</th>
-                        <th class="py-2 px-4 text-right">Parts</th>
-                        <th class="py-2 px-4 text-right">Labor</th>
-                        <th class="py-2 px-4 text-right">Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($invoice->services as $service)
-                    <tr class="">
-                        <td class="py-2 px-4">{{ $service->description }}</td>
-                        <td class="py-2 px-4 text-right">${{ number_format($service->parts, 2) }}</td>
-                        <td class="py-2 px-4 text-right">${{ number_format($service->labor, 2) }}</td>
-                        <td class="py-2 px-4 text-right">${{ number_format($service->total, 2) }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Parts</th>
+                    <th>Labor</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($invoice->services as $service)
+                <tr>
+                    <td>{{ $service->description }}</td>
+                    <td>${{ number_format($service->parts, 2) }}</td>
+                    <td>${{ number_format($service->labor, 2) }}</td>
+                    <td>${{ number_format($service->total, 2) }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        <div class="totals">
+            <p><strong>Subtotal:</strong> ${{ number_format($invoice->subtotal, 2) }}</p>
+            <p><strong>Taxes:</strong> ${{ number_format($invoice->taxes, 2) }}</p>
+            <p class="total-row"><strong>Total:</strong> ${{ number_format($invoice->total, 2) }}</p>
         </div>
 
+        <div class="observations">
+            <h3 class="section-title">Observations:</h3>
+            <p>{{ $invoice->observations }}</p>
+        </div>
 
-        <div class="flex justify-end mb-8">
-                <div class="text-right">
-                    <p class="mb-2"><span class="font-semibold">Subtotal:</span> ${{ number_format($invoice->subtotal, 2) }}</p>
-                    <p class="mb-2"><span class="font-semibold">Taxes:</span> ${{ number_format($invoice->taxes, 2) }}</p>
-                    <p class="text-xl font-bold"><span class="font-semibold">Total:</span> ${{ number_format($invoice->total, 2) }}</p>
-                </div>
-            </div>
-
-            <div class="border-t pt-4">
-                <h3 class="text-xl font-bold mb-2">Observations:</h3>
-                <p class="text-gray-600">{{ $invoice->observations }}</p>
-            </div>
-
-            <div class="mt-8 text-center text-gray-500">
-                <p>Thank you for your business!</p>
-            </div>
+        <div class="thank-you">
+            <p>Thank you for your business!</p>
+        </div>
     </div>
 </body>
 </html>
