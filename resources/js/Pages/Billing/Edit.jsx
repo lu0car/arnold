@@ -262,7 +262,7 @@ export default function Edit({ auth, invoice }) {
                                                     <div className="flex items-center mb-2 gap-8 my-8" key={index}>
                                                         <div className="flex-1">
                                                             <InputLabel htmlFor="description" className="block font-medium mb-2">
-                                                                Service description
+                                                                Service
                                                             </InputLabel>
                                                             <TextInput
                                                                 type="text"

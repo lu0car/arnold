@@ -35,8 +35,8 @@ class InvoiceController extends Controller
 
         // dd($request);
         $request->validate([
-            'customerName' => 'required|max:50|unique:customers',
-            'phoneNumber' => 'string|max:15|unique:customers',
+            'customerName' => 'required|max:50',
+            'phoneNumber' => 'string|max:15',
             'observations' => 'max:255',
             'services' => 'required|array',
             'services.*.description' => 'required|string|max:255',
@@ -199,6 +199,6 @@ class InvoiceController extends Controller
         // return Pdf::view('pdf.invoice', compact('invoice', 'customer'))
         //     ->name('invoice.pdf');
         $pdf = Pdf::loadView('pdf.invoice', compact('invoice', 'customer'));
-        return $pdf->stream();
+        return $pdf->download();
     }
 }

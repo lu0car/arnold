@@ -9,7 +9,7 @@ export default function DialogConfirm({ open, setOpen, service, handleDelete }) 
         <div className='p-6'>
           <Typography variant='h5'>Alert!</Typography>
           <p className='py-6'>
-            Are sure you want to delete the service: <strong>{service.description}</strong>?
+            Are sure you want to delete the service: <strong>{service.name}</strong>?
           </p>
           <div className='flex gap-2 justify-end'>
             <Button variant='outlined' size='sm' onClick={() => setOpen(false)}>Cancel</Button>

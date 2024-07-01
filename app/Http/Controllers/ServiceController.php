@@ -28,7 +28,7 @@ class ServiceController extends Controller
 
         $request->validate([
             'name'=> 'required|string',
-            'description' => 'required|string|max:255',
+            'description' => 'max:255',
             'parts' => 'required|numeric',
             'labor' => 'required|numeric',
             'total' => 'required|numeric',
@@ -63,7 +63,7 @@ class ServiceController extends Controller
         $service = Service::findOrFail($id);
 
         $request->validate([
-            'description' => 'required|string',
+            'description' => 'max:255',
             'parts' => 'required|numeric',
             'labor' => 'required|numeric',
             'total' => 'required|numeric',
@@ -104,8 +104,6 @@ class ServiceController extends Controller
             return redirect()->route('services.index')
                 ->with("message", "The service '{$service->description}' was deleted successfully");
         } catch (\Exception $e) {
-            // Log the error
-            \Log::error("Error deleting service: " . $e->getMessage());
 
             return redirect()->route('services.index')
                 ->with("error", "There was an error deleting the service. Please try again.");

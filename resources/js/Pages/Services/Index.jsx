@@ -199,7 +199,7 @@ export default function Dashboard({ auth, services }) {
                                             color="blue-gray"
                                             className="font-normal"
                                         >
-                                            {service.description}
+                                            {service.name}
                                         </Typography>
                                     </td>
                                     <td className="p-4">
